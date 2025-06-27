@@ -20,19 +20,107 @@ export default function Home() {
   const todaysDate = new Date().toISOString().split("T")[0];
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-white">
-      <h1 className="text-2xl font-bold mb-6">Drawing Canvas</h1>
-      <DrawingCanvas ref={canvasRef} />
-      <EntriesForm
-        key={lastSubmitKey}
-        getImageBase64={getImageBase64}
-        numberOfMoves={getNumberOfMoves()}
-        todaysDate={todaysDate}
-        onSubmit={() => {
-          clearCanvas();
-          setLastSubmitKey((k) => k + 1);
+    <div
+      style={{
+        position: "relative",
+        width: "100vw",
+        height: "100vh",
+        background: "#E6E6E6",
+        fontFamily: 'Helvetica Now Display Bold',
+        overflow: "hidden",
+      }}
+    >
+      {/* Prompt at the top */}
+      <div
+        style={{
+          position: "absolute",
+          top: 32,
+          left: 0,
+          width: "100%",
+          textAlign: "center",
+          color: "#0057FF",
+          fontWeight: 700,
+          fontSize: 36,
+          fontFamily: 'Helvetica Now Display Bold',
+        }}
+      >
+        Make a shape from the existing shape. Use as few moves as you can. Be as creative as you want. Tell us what you made.
+      </div>
+      {/* Canvas fills the page */}
+      <canvas
+        ref={canvasRef as any}
+        width={window.innerWidth}
+        height={window.innerHeight}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          zIndex: 1,
+          background: "#E6E6E6",
         }}
       />
+      {/* Form fields at the bottom */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 32,
+          left: 0,
+          width: "100%",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+          padding: "0 48px",
+          zIndex: 2,
+        }}
+      >
+        <input
+          type="text"
+          defaultValue="username"
+          style={{
+            fontFamily: 'Helvetica Now Display Bold',
+            fontSize: 24,
+            color: "#0057FF",
+            background: "transparent",
+            border: "none",
+            borderBottom: "2px solid #0057FF",
+            outline: "none",
+            width: 180,
+            marginRight: 16,
+          }}
+        />
+        <input
+          type="text"
+          defaultValue="what is this?"
+          style={{
+            fontFamily: 'Helvetica Now Display Bold',
+            fontSize: 24,
+            color: "#0057FF",
+            background: "transparent",
+            border: "none",
+            borderBottom: "2px solid #0057FF",
+            outline: "none",
+            width: 220,
+            textAlign: "center",
+          }}
+        />
+        <button
+          style={{
+            fontFamily: 'Helvetica Now Display Bold',
+            fontSize: 24,
+            color: "#0057FF",
+            background: "transparent",
+            border: "none",
+            borderBottom: "2px solid #0057FF",
+            cursor: "pointer",
+            width: 120,
+            textAlign: "right",
+          }}
+        >
+          submit
+        </button>
+      </div>
     </div>
   );
 }
