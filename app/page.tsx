@@ -1,11 +1,23 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import DrawingCanvas, { DrawingCanvasHandle } from "./DrawingCanvas";
 import EntriesForm from "./EntriesForm";
 
 export default function Home() {
   const canvasRef = useRef<DrawingCanvasHandle>(null);
   const [lastSubmitKey, setLastSubmitKey] = useState(0);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    // Set initial size
+    setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    // Update on resize
+    const handleResize = () => {
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const getImageBase64 = () => {
     return canvasRef.current?.getImageBase64() || null;
@@ -49,8 +61,8 @@ export default function Home() {
       {/* Canvas fills the page */}
       <canvas
         ref={canvasRef as any}
-        width={window.innerWidth}
-        height={window.innerHeight}
+        width={dimensions.width}
+        height={dimensions.height}
         style={{
           position: "absolute",
           top: 0,
