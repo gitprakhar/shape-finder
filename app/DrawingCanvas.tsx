@@ -53,7 +53,7 @@ export default function DrawingCanvas() {
         body: JSON.stringify({ guess }),
       });
       setGuess("");
-    } catch (err) {
+    } catch {
       // Optionally handle error
     } finally {
       setSubmitting(false);
