@@ -1,7 +1,11 @@
 "use client";
 import React, { useState } from "react";
 
-export default function GuessForm() {
+interface GuessFormProps {
+  getImageBase64: () => string | null;
+}
+
+export default function GuessForm({ getImageBase64 }: GuessFormProps) {
   const [guess, setGuess] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -10,10 +14,11 @@ export default function GuessForm() {
     if (!guess.trim()) return;
     setSubmitting(true);
     try {
+      const image_base64 = getImageBase64();
       await fetch("/api/guesses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ guess }),
+        body: JSON.stringify({ guess, image_base64 }),
       });
       setGuess("");
     } catch {

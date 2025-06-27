@@ -1,9 +1,21 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, forwardRef, useImperativeHandle } from "react";
 
-export default function DrawingCanvas() {
+export type DrawingCanvasHandle = {
+  getImageBase64: () => string | null;
+};
+
+const DrawingCanvas = forwardRef<DrawingCanvasHandle>((props, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [drawing, setDrawing] = useState(false);
+
+  useImperativeHandle(ref, () => ({
+    getImageBase64: () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return null;
+      return canvas.toDataURL("image/png");
+    },
+  }));
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     setDrawing(true);
@@ -52,4 +64,6 @@ export default function DrawingCanvas() {
       onMouseMove={draw}
     />
   );
-} 
+});
+
+export default DrawingCanvas; 
