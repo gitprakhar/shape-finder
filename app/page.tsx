@@ -7,6 +7,9 @@ export default function Home() {
   const canvasRef = useRef<DrawingCanvasHandle>(null);
   const [lastSubmitKey, setLastSubmitKey] = useState(0);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [username, setUsername] = useState("username");
+  const [nameForImage, setNameForImage] = useState("what is this?");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     // Set initial size
@@ -31,6 +34,33 @@ export default function Home() {
 
   const todaysDate = new Date().toISOString().split("T")[0];
 
+  const handleSubmit = async () => {
+    if (!username.trim() || !nameForImage.trim()) return;
+    setSubmitting(true);
+    try {
+      const image_base64 = getImageBase64();
+      await fetch("/api/entries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username,
+          image_base64,
+          name_for_image: nameForImage,
+          number_of_moves: getNumberOfMoves(),
+          todays_date: todaysDate,
+        }),
+      });
+      setNameForImage("what is this?");
+      setUsername("username");
+      clearCanvas();
+      setLastSubmitKey((k) => k + 1);
+    } catch {
+      // Optionally handle error
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div
       style={{
@@ -42,18 +72,21 @@ export default function Home() {
         overflow: "hidden",
       }}
     >
-      {/* Prompt at the top */}
+      {/* Prompt at the very top */}
       <div
         style={{
           position: "absolute",
-          top: 32,
+          top: 0,
           left: 0,
           width: "100%",
-          textAlign: "center",
+          textAlign: "left",
           color: "#0057FF",
           fontWeight: 700,
           fontSize: 36,
           fontFamily: 'Helvetica Now Display Bold',
+          zIndex: 10,
+          background: "transparent",
+          padding: "32px 0 0 48px",
         }}
       >
         Make a shape from the existing shape. Use as few moves as you can. Be as creative as you want. Tell us what you made.
@@ -89,7 +122,8 @@ export default function Home() {
       >
         <input
           type="text"
-          defaultValue="username"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
           style={{
             fontFamily: 'Helvetica Now Display Bold',
             fontSize: 24,
@@ -104,7 +138,8 @@ export default function Home() {
         />
         <input
           type="text"
-          defaultValue="what is this?"
+          value={nameForImage}
+          onChange={e => setNameForImage(e.target.value)}
           style={{
             fontFamily: 'Helvetica Now Display Bold',
             fontSize: 24,
@@ -118,6 +153,8 @@ export default function Home() {
           }}
         />
         <button
+          onClick={handleSubmit}
+          disabled={submitting || !username.trim() || !nameForImage.trim()}
           style={{
             fontFamily: 'Helvetica Now Display Bold',
             fontSize: 24,
@@ -125,12 +162,13 @@ export default function Home() {
             background: "transparent",
             border: "none",
             borderBottom: "2px solid #0057FF",
-            cursor: "pointer",
+            cursor: submitting ? "not-allowed" : "pointer",
             width: 120,
             textAlign: "right",
+            opacity: submitting ? 0.6 : 1,
           }}
         >
-          submit
+          {submitting ? "submitting..." : "submit"}
         </button>
       </div>
     </div>
