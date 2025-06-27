@@ -66,4 +66,6 @@ const DrawingCanvas = forwardRef<DrawingCanvasHandle>((props, ref) => {
   );
 });
 
+DrawingCanvas.displayName = "DrawingCanvas";
+
 export default DrawingCanvas; 
