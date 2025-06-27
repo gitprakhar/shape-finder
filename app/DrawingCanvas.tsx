@@ -3,11 +3,14 @@ import React, { useRef, useState, forwardRef, useImperativeHandle } from "react"
 
 export type DrawingCanvasHandle = {
   getImageBase64: () => string | null;
+  getNumberOfMoves: () => number;
+  clearCanvas: () => void;
 };
 
 const DrawingCanvas = forwardRef<DrawingCanvasHandle>((props, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [drawing, setDrawing] = useState(false);
+  const [moveCount, setMoveCount] = useState(0);
 
   useImperativeHandle(ref, () => ({
     getImageBase64: () => {
@@ -15,10 +18,22 @@ const DrawingCanvas = forwardRef<DrawingCanvasHandle>((props, ref) => {
       if (!canvas) return null;
       return canvas.toDataURL("image/png");
     },
+    getNumberOfMoves: () => moveCount,
+    clearCanvas: () => {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+      setMoveCount(0);
+    },
   }));
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     setDrawing(true);
+    setMoveCount((c) => c + 1);
     draw(e);
   };
 
