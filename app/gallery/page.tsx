@@ -3,7 +3,7 @@ import React from 'react';
 
 export default async function GalleryPage() {
   const { rows } = await sql`SELECT username, image_base64, name_for_image, number_of_moves, todays_date FROM entries`;
-
+  console.log(rows);
   return (
     <div className="flex flex-col items-center p-8">
       <h1 className="text-2xl font-bold mb-6">Gallery</h1>
