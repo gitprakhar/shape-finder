@@ -7,9 +7,11 @@ export async function POST(req: NextRequest) {
     if (!guess || typeof guess !== 'string') {
       return NextResponse.json({ error: 'Invalid guess' }, { status: 400 });
     }
+    console.log(guess);
     await sql`INSERT INTO guesses (guess) VALUES (${guess})`;
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 } 
