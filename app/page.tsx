@@ -1,15 +1,17 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
 import DrawingCanvas, { DrawingCanvasHandle } from "./DrawingCanvas";
-import EntriesForm from "./EntriesForm";
 
 export default function Home() {
   const canvasRef = useRef<DrawingCanvasHandle>(null);
-  const [lastSubmitKey, setLastSubmitKey] = useState(0);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [username, setUsername] = useState("username");
   const [nameForImage, setNameForImage] = useState("what is this?");
   const [submitting, setSubmitting] = useState(false);
+  const spanRef = useRef<HTMLSpanElement>(null);
+  const [inputWidth, setInputWidth] = useState<number>(0);
+  const submitSpanRef = useRef<HTMLSpanElement>(null);
+  const [submitWidth, setSubmitWidth] = useState<number>(0);
 
   useEffect(() => {
     // Set initial size
@@ -21,6 +23,18 @@ export default function Home() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    if (spanRef.current) {
+      setInputWidth(spanRef.current.offsetWidth + 8); // +8 for cursor padding
+    }
+  }, [nameForImage]);
+
+  useEffect(() => {
+    if (submitSpanRef.current) {
+      setSubmitWidth(submitSpanRef.current.offsetWidth + 8); // +8 for padding
+    }
+  }, [submitting]);
 
   const getImageBase64 = () => {
     return canvasRef.current?.getImageBase64() || null;
@@ -53,7 +67,6 @@ export default function Home() {
       setNameForImage("what is this?");
       setUsername("username");
       clearCanvas();
-      setLastSubmitKey((k) => k + 1);
     } catch {
       // Optionally handle error
     } finally {
@@ -124,6 +137,7 @@ export default function Home() {
           type="text"
           value={username}
           onChange={e => setUsername(e.target.value)}
+          onFocus={() => { if (username === "username") setUsername(""); }}
           style={{
             fontFamily: 'Helvetica Now Display Bold',
             fontSize: 24,
@@ -132,14 +146,35 @@ export default function Home() {
             border: "none",
             borderBottom: "2px solid #0057FF",
             outline: "none",
-            width: 180,
+            minWidth: "100px",
+            width: `${Math.max(username.length, 8)}ch`,
             marginRight: 16,
+            textAlign: "left",
+            transition: "width 0.2s",
           }}
         />
+        {/* Hidden span for measuring input width */}
+        <span
+          ref={spanRef}
+          style={{
+            position: "absolute",
+            visibility: "hidden",
+            height: 0,
+            overflow: "hidden",
+            whiteSpace: "pre",
+            fontFamily: 'Helvetica Now Display Bold',
+            fontSize: 24,
+            fontWeight: 700,
+            letterSpacing: "normal",
+          }}
+        >
+          {nameForImage || " "}
+        </span>
         <input
           type="text"
           value={nameForImage}
           onChange={e => setNameForImage(e.target.value)}
+          onFocus={() => { if (nameForImage === "what is this?") setNameForImage(""); }}
           style={{
             fontFamily: 'Helvetica Now Display Bold',
             fontSize: 24,
@@ -148,10 +183,30 @@ export default function Home() {
             border: "none",
             borderBottom: "2px solid #0057FF",
             outline: "none",
-            width: 220,
-            textAlign: "center",
+            minWidth: "60px",
+            maxWidth: "250px",
+            width: inputWidth,
+            textAlign: "left",
+            transition: "width 0.2s",
           }}
         />
+        {/* Hidden span for measuring submit button width */}
+        <span
+          ref={submitSpanRef}
+          style={{
+            position: "absolute",
+            visibility: "hidden",
+            height: 0,
+            overflow: "hidden",
+            whiteSpace: "pre",
+            fontFamily: 'Helvetica Now Display Bold',
+            fontSize: 24,
+            fontWeight: 700,
+            letterSpacing: "normal",
+          }}
+        >
+          {submitting ? "submitting..." : "submit"}
+        </span>
         <button
           onClick={handleSubmit}
           disabled={submitting || !username.trim() || !nameForImage.trim()}
@@ -163,9 +218,10 @@ export default function Home() {
             border: "none",
             borderBottom: "2px solid #0057FF",
             cursor: submitting ? "not-allowed" : "pointer",
-            width: 120,
+            width: submitWidth,
             textAlign: "right",
             opacity: submitting ? 0.6 : 1,
+            transition: "width 0.2s",
           }}
         >
           {submitting ? "submitting..." : "submit"}
