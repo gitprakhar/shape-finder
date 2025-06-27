@@ -59,8 +59,8 @@ export default function Home() {
         Make a shape from the existing shape. Use as few moves as you can. Be as creative as you want. Tell us what you made.
       </div>
       {/* Canvas fills the page */}
-      <canvas
-        ref={canvasRef as any}
+      <DrawingCanvas
+        ref={canvasRef}
         width={dimensions.width}
         height={dimensions.height}
         style={{
