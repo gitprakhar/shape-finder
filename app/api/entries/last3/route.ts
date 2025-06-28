@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const { rows } = await sql`SELECT username, image_base64, score FROM entries ORDER BY id DESC LIMIT 3`;
     const entries = rows.map(row => ({
