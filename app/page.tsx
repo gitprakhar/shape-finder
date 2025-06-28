@@ -16,6 +16,7 @@ export default function Home() {
   const [leaderboardEntries, setLeaderboardEntries] = useState<{ username: string; score: number; image_base64?: string }[]>([]);
   const [randomScore, setRandomScore] = useState<number | null>(null);
   const [defaultImage, setDefaultImage] = useState<string | null>(null);
+  const [rotation, setRotation] = useState(0);
 
   useEffect(() => {
     // Set initial size
@@ -58,12 +59,25 @@ export default function Home() {
         const img = new window.Image();
         img.onload = () => {
           ctx?.clearRect(0, 0, canvas.width, canvas.height);
-          ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+          ctx?.save();
+          ctx?.translate(canvas.width / 2, canvas.height / 2);
+          ctx?.rotate((rotation * Math.PI) / 180);
+          // Draw image at 75% of canvas size (25% smaller)
+          const drawWidth = canvas.width * 0.75;
+          const drawHeight = canvas.height * 0.75;
+          ctx?.drawImage(
+            img,
+            -drawWidth / 2,
+            -drawHeight / 2,
+            drawWidth,
+            drawHeight
+          );
+          ctx?.restore();
         };
         img.src = defaultImage;
       }
     }
-  }, [defaultImage, dimensions, canvasRef]);
+  }, [defaultImage, dimensions, canvasRef, rotation]);
 
   const getImageBase64 = () => {
     return canvasRef.current?.getImageBase64() || null;
@@ -174,64 +188,81 @@ export default function Home() {
             zIndex: 2,
           }}
         >
-          <input
-            type="text"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-            onFocus={() => { if (username === "username") setUsername(""); }}
-            style={{
-              fontFamily: 'Helvetica Now Display Bold',
-              fontSize: 24,
-              color: "#0057FF",
-              background: "transparent",
-              border: "none",
-              borderBottom: "2px solid #0057FF",
-              outline: "none",
-              minWidth: "100px",
-              width: `${Math.max(username.length, 8)}ch`,
-              marginRight: 16,
-              textAlign: "left",
-              transition: "width 0.2s",
-            }}
-          />
-          {/* Hidden span for measuring input width */}
-          <span
-            ref={spanRef}
-            style={{
-              position: "absolute",
-              visibility: "hidden",
-              height: 0,
-              overflow: "hidden",
-              whiteSpace: "pre",
-              fontFamily: 'Helvetica Now Display Bold',
-              fontSize: 24,
-              fontWeight: 700,
-              letterSpacing: "normal",
-            }}
-          >
-            {nameForImage || " "}
-          </span>
-          <input
-            type="text"
-            value={nameForImage}
-            onChange={e => setNameForImage(e.target.value)}
-            onFocus={() => { if (nameForImage === "what is this?") setNameForImage(""); }}
-            style={{
-              fontFamily: 'Helvetica Now Display Bold',
-              fontSize: 24,
-              color: "#0057FF",
-              background: "transparent",
-              border: "none",
-              borderBottom: "2px solid #0057FF",
-              outline: "none",
-              minWidth: "60px",
-              maxWidth: "250px",
-              width: inputWidth,
-              textAlign: "left",
-              transition: "width 0.2s",
-            }}
-          />
-          {/* Hidden span for measuring submit button width */}
+          {/* Username and what is this next to each other */}
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 32 }}>
+            <input
+              type="text"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              onFocus={() => { if (username === "username") setUsername(""); }}
+              style={{
+                fontFamily: 'Helvetica Now Display Bold',
+                fontSize: 24,
+                color: "#0057FF",
+                background: "transparent",
+                border: "none",
+                borderBottom: "2px solid #0057FF",
+                outline: "none",
+                minWidth: "100px",
+                width: `${Math.max(username.length, 8)}ch`,
+                marginRight: 0,
+                textAlign: "left",
+                transition: "width 0.2s",
+              }}
+            />
+            <input
+              type="text"
+              value={nameForImage}
+              onChange={e => setNameForImage(e.target.value)}
+              onFocus={() => { if (nameForImage === "what is this?") setNameForImage(""); }}
+              style={{
+                fontFamily: 'Helvetica Now Display Bold',
+                fontSize: 24,
+                color: "#0057FF",
+                background: "transparent",
+                border: "none",
+                borderBottom: "2px solid #0057FF",
+                outline: "none",
+                minWidth: "60px",
+                maxWidth: "250px",
+                width: inputWidth,
+                textAlign: "left",
+                transition: "width 0.2s",
+              }}
+            />
+            {/* Hidden span for measuring input width */}
+            <span
+              ref={spanRef}
+              style={{
+                position: "absolute",
+                visibility: "hidden",
+                height: 0,
+                overflow: "hidden",
+                whiteSpace: "pre",
+                fontFamily: 'Helvetica Now Display Bold',
+                fontSize: 24,
+                fontWeight: 700,
+                letterSpacing: "normal",
+              }}
+            >
+              {nameForImage || " "}
+            </span>
+            {/* Fixed-width container for rotate slider */}
+            <div style={{ display: 'flex', alignItems: 'center', marginLeft: 24, minWidth: 200 }}>
+              <label style={{ color: '#0057FF', fontWeight: 700, fontSize: 18, marginRight: 8 }}>
+                Rotate:
+              </label>
+              <input
+                type="range"
+                min={-180}
+                max={180}
+                value={rotation}
+                onChange={e => setRotation(Number(e.target.value))}
+                style={{ width: 120 }}
+              />
+            </div>
+          </div>
+          {/* Submit button and its measuring span remain on the right */}
           <span
             ref={submitSpanRef}
             style={{
