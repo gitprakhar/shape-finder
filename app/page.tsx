@@ -52,7 +52,7 @@ export default function Home() {
   useEffect(() => {
     // Draw the default image on the canvas when loaded
     if (defaultImage && canvasRef.current) {
-      const canvas = (canvasRef.current as any).canvasRef?.current;
+      const canvas = (canvasRef.current as DrawingCanvasHandle).canvasRef?.current;
       if (canvas) {
         const ctx = canvas.getContext("2d");
         const img = new window.Image();

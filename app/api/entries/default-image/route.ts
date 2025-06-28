@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const { rows } = await sql`SELECT image_base64 FROM entries WHERE username = 'pm17' AND name_for_image = 'default' LIMIT 1`;
     if (rows.length > 0) {
