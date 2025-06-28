@@ -5,6 +5,7 @@ export type DrawingCanvasHandle = {
   getImageBase64: () => string | null;
   getNumberOfMoves: () => number;
   clearCanvas: () => void;
+  canvasRef: React.RefObject<HTMLCanvasElement>;
 };
 
 interface DrawingCanvasProps extends React.CanvasHTMLAttributes<HTMLCanvasElement> {
@@ -15,7 +16,7 @@ interface DrawingCanvasProps extends React.CanvasHTMLAttributes<HTMLCanvasElemen
 
 const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>(
   ({ width = 600, height = 300, style, ...rest }, ref) => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null) as React.RefObject<HTMLCanvasElement>;
     const [drawing, setDrawing] = useState(false);
     const [moveCount, setMoveCount] = useState(0);
 
@@ -36,6 +37,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>(
         }
         setMoveCount(0);
       },
+      canvasRef,
     }));
 
     const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {

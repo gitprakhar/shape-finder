@@ -15,6 +15,7 @@ export default function Home() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [leaderboardEntries, setLeaderboardEntries] = useState<{ username: string; score: number; image_base64?: string }[]>([]);
   const [randomScore, setRandomScore] = useState<number | null>(null);
+  const [defaultImage, setDefaultImage] = useState<string | null>(null);
 
   useEffect(() => {
     // Set initial size
@@ -38,6 +39,31 @@ export default function Home() {
       setSubmitWidth(submitSpanRef.current.offsetWidth + 8); // +8 for padding
     }
   }, [submitting]);
+
+  useEffect(() => {
+    // Fetch the default image (username: pm17, name_for_image: default)
+    fetch("/api/entries/default-image")
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.image_base64) setDefaultImage(data.image_base64);
+      });
+  }, []);
+
+  useEffect(() => {
+    // Draw the default image on the canvas when loaded
+    if (defaultImage && canvasRef.current) {
+      const canvas = (canvasRef.current as any).canvasRef?.current;
+      if (canvas) {
+        const ctx = canvas.getContext("2d");
+        const img = new window.Image();
+        img.onload = () => {
+          ctx?.clearRect(0, 0, canvas.width, canvas.height);
+          ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+        };
+        img.src = defaultImage;
+      }
+    }
+  }, [defaultImage, dimensions, canvasRef]);
 
   const getImageBase64 = () => {
     return canvasRef.current?.getImageBase64() || null;
@@ -268,12 +294,12 @@ export default function Home() {
           </div>
           <div style={{ display: "flex", gap: 32, marginBottom: 32 }}>
             {leaderboardEntries.map((entry, idx) => (
-              <div key={idx} style={{ background: "#e6e6e6", width: 240, height: 240, display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "flex-start", borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
+              <div key={idx} style={{ background: "#e6e6e6", width: 320, height: 320, display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "flex-start", borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
                 {entry.image_base64 && (
                   <img
                     src={entry.image_base64}
                     alt={entry.username}
-                    style={{ width: "100%", height: 180, objectFit: "contain", borderTopLeftRadius: 8, borderTopRightRadius: 8 }}
+                    style={{ width: "100%", height: 240, objectFit: "contain", borderTopLeftRadius: 8, borderTopRightRadius: 8 }}
                   />
                 )}
                 <div style={{ display: "flex", width: "100%", justifyContent: "space-between", padding: "0 16px 16px 16px" }}>
@@ -284,7 +310,7 @@ export default function Home() {
             ))}
             {/* Fill empty squares if less than 3 */}
             {Array.from({ length: 3 - leaderboardEntries.length }).map((_, idx) => (
-              <div key={"empty-" + idx} style={{ background: "#e6e6e6", width: 240, height: 240, borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }} />
+              <div key={"empty-" + idx} style={{ background: "#e6e6e6", width: 320, height: 320, borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }} />
             ))}
           </div>
           <button

@@ -7,11 +7,12 @@ export async function POST(req: NextRequest) {
     if (!username || !image_base64 || !name_for_image || !number_of_moves || !todays_date) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
+    const score = Math.floor(Math.random() * 100) + 1;
     await sql`
-      INSERT INTO entries (username, image_base64, name_for_image, number_of_moves, todays_date)
-      VALUES (${username}, ${image_base64}, ${name_for_image}, ${number_of_moves}, ${todays_date})
+      INSERT INTO entries (username, image_base64, name_for_image, number_of_moves, todays_date, score)
+      VALUES (${username}, ${image_base64}, ${name_for_image}, ${number_of_moves}, ${todays_date}, ${score})
     `;
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, score });
   } catch (error) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
