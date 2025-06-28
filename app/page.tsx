@@ -12,6 +12,9 @@ export default function Home() {
   const [inputWidth, setInputWidth] = useState<number>(0);
   const submitSpanRef = useRef<HTMLSpanElement>(null);
   const [submitWidth, setSubmitWidth] = useState<number>(0);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [leaderboardEntries, setLeaderboardEntries] = useState<{ username: string; score: number; image_base64?: string }[]>([]);
+  const [randomScore, setRandomScore] = useState<number | null>(null);
 
   useEffect(() => {
     // Set initial size
@@ -67,6 +70,13 @@ export default function Home() {
       setNameForImage("what is this?");
       setUsername("username");
       clearCanvas();
+      // Show leaderboard overlay
+      setShowLeaderboard(true);
+      setRandomScore(83); // random for now
+      // Fetch last 3 entries
+      const res = await fetch("/api/entries/last3");
+      const data = await res.json();
+      setLeaderboardEntries(data.entries || []);
     } catch {
       // Optionally handle error
     } finally {
@@ -86,147 +96,216 @@ export default function Home() {
       }}
     >
       {/* Prompt at the very top */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          textAlign: "left",
-          color: "#0057FF",
-          fontWeight: 700,
-          fontSize: 36,
-          fontFamily: 'Helvetica Now Display Bold',
-          zIndex: 10,
-          background: "transparent",
-          padding: "32px 0 0 48px",
-        }}
-      >
-        Make a shape from the existing shape. Use as few moves as you can. Be as creative as you want. Tell us what you made.
-      </div>
+      {!showLeaderboard && (
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            textAlign: "left",
+            color: "#0057FF",
+            fontWeight: 700,
+            fontSize: 36,
+            fontFamily: 'Helvetica Now Display Bold',
+            zIndex: 10,
+            background: "transparent",
+            padding: "32px 0 0 48px",
+          }}
+        >
+          Make a shape from the existing shape. Use as few moves as you can. Be as creative as you want. Tell us what you made.
+        </div>
+      )}
       {/* Canvas fills the page */}
-      <DrawingCanvas
-        ref={canvasRef}
-        width={dimensions.width}
-        height={dimensions.height}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100vw",
-          height: "100vh",
-          zIndex: 1,
-          background: "#E6E6E6",
-        }}
-      />
+      {!showLeaderboard && (
+        <DrawingCanvas
+          ref={canvasRef}
+          width={dimensions.width}
+          height={dimensions.height}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            zIndex: 1,
+            background: "#E6E6E6",
+          }}
+        />
+      )}
       {/* Form fields at the bottom */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 32,
-          left: 0,
-          width: "100%",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-end",
-          padding: "0 48px",
-          zIndex: 2,
-        }}
-      >
-        <input
-          type="text"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-          onFocus={() => { if (username === "username") setUsername(""); }}
-          style={{
-            fontFamily: 'Helvetica Now Display Bold',
-            fontSize: 24,
-            color: "#0057FF",
-            background: "transparent",
-            border: "none",
-            borderBottom: "2px solid #0057FF",
-            outline: "none",
-            minWidth: "100px",
-            width: `${Math.max(username.length, 8)}ch`,
-            marginRight: 16,
-            textAlign: "left",
-            transition: "width 0.2s",
-          }}
-        />
-        {/* Hidden span for measuring input width */}
-        <span
-          ref={spanRef}
+      {!showLeaderboard && (
+        <div
           style={{
             position: "absolute",
-            visibility: "hidden",
-            height: 0,
-            overflow: "hidden",
-            whiteSpace: "pre",
-            fontFamily: 'Helvetica Now Display Bold',
-            fontSize: 24,
-            fontWeight: 700,
-            letterSpacing: "normal",
+            bottom: 32,
+            left: 0,
+            width: "100%",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+            padding: "0 48px",
+            zIndex: 2,
           }}
         >
-          {nameForImage || " "}
-        </span>
-        <input
-          type="text"
-          value={nameForImage}
-          onChange={e => setNameForImage(e.target.value)}
-          onFocus={() => { if (nameForImage === "what is this?") setNameForImage(""); }}
-          style={{
-            fontFamily: 'Helvetica Now Display Bold',
-            fontSize: 24,
-            color: "#0057FF",
-            background: "transparent",
-            border: "none",
-            borderBottom: "2px solid #0057FF",
-            outline: "none",
-            minWidth: "60px",
-            maxWidth: "250px",
-            width: inputWidth,
-            textAlign: "left",
-            transition: "width 0.2s",
-          }}
-        />
-        {/* Hidden span for measuring submit button width */}
-        <span
-          ref={submitSpanRef}
+          <input
+            type="text"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            onFocus={() => { if (username === "username") setUsername(""); }}
+            style={{
+              fontFamily: 'Helvetica Now Display Bold',
+              fontSize: 24,
+              color: "#0057FF",
+              background: "transparent",
+              border: "none",
+              borderBottom: "2px solid #0057FF",
+              outline: "none",
+              minWidth: "100px",
+              width: `${Math.max(username.length, 8)}ch`,
+              marginRight: 16,
+              textAlign: "left",
+              transition: "width 0.2s",
+            }}
+          />
+          {/* Hidden span for measuring input width */}
+          <span
+            ref={spanRef}
+            style={{
+              position: "absolute",
+              visibility: "hidden",
+              height: 0,
+              overflow: "hidden",
+              whiteSpace: "pre",
+              fontFamily: 'Helvetica Now Display Bold',
+              fontSize: 24,
+              fontWeight: 700,
+              letterSpacing: "normal",
+            }}
+          >
+            {nameForImage || " "}
+          </span>
+          <input
+            type="text"
+            value={nameForImage}
+            onChange={e => setNameForImage(e.target.value)}
+            onFocus={() => { if (nameForImage === "what is this?") setNameForImage(""); }}
+            style={{
+              fontFamily: 'Helvetica Now Display Bold',
+              fontSize: 24,
+              color: "#0057FF",
+              background: "transparent",
+              border: "none",
+              borderBottom: "2px solid #0057FF",
+              outline: "none",
+              minWidth: "60px",
+              maxWidth: "250px",
+              width: inputWidth,
+              textAlign: "left",
+              transition: "width 0.2s",
+            }}
+          />
+          {/* Hidden span for measuring submit button width */}
+          <span
+            ref={submitSpanRef}
+            style={{
+              position: "absolute",
+              visibility: "hidden",
+              height: 0,
+              overflow: "hidden",
+              whiteSpace: "pre",
+              fontFamily: 'Helvetica Now Display Bold',
+              fontSize: 24,
+              fontWeight: 700,
+              letterSpacing: "normal",
+            }}
+          >
+            {submitting ? "submitting..." : "submit"}
+          </span>
+          <button
+            onClick={handleSubmit}
+            disabled={submitting || !username.trim() || !nameForImage.trim()}
+            style={{
+              fontFamily: 'Helvetica Now Display Bold',
+              fontSize: 24,
+              color: "#0057FF",
+              background: "transparent",
+              border: "none",
+              borderBottom: "2px solid #0057FF",
+              cursor: submitting ? "not-allowed" : "pointer",
+              width: submitWidth,
+              textAlign: "right",
+              opacity: submitting ? 0.6 : 1,
+              transition: "width 0.2s",
+            }}
+          >
+            {submitting ? "submitting..." : "submit"}
+          </button>
+        </div>
+      )}
+      {/* Leaderboard overlay */}
+      {showLeaderboard && (
+        <div
           style={{
             position: "absolute",
-            visibility: "hidden",
-            height: 0,
-            overflow: "hidden",
-            whiteSpace: "pre",
-            fontFamily: 'Helvetica Now Display Bold',
-            fontSize: 24,
-            fontWeight: 700,
-            letterSpacing: "normal",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "#E6E6E6",
+            zIndex: 20,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            padding: 48,
           }}
         >
-          {submitting ? "submitting..." : "submit"}
-        </span>
-        <button
-          onClick={handleSubmit}
-          disabled={submitting || !username.trim() || !nameForImage.trim()}
-          style={{
-            fontFamily: 'Helvetica Now Display Bold',
-            fontSize: 24,
-            color: "#0057FF",
-            background: "transparent",
-            border: "none",
-            borderBottom: "2px solid #0057FF",
-            cursor: submitting ? "not-allowed" : "pointer",
-            width: submitWidth,
-            textAlign: "right",
-            opacity: submitting ? 0.6 : 1,
-            transition: "width 0.2s",
-          }}
-        >
-          {submitting ? "submitting..." : "submit"}
-        </button>
-      </div>
+          <div style={{ color: "#0057FF", fontWeight: 700, fontSize: 36, marginBottom: 32 }}>
+            Your score is {randomScore}/100
+          </div>
+          <div style={{ color: "#0057FF", fontWeight: 700, fontSize: 32, marginBottom: 24 }}>
+            leaderboard
+          </div>
+          <div style={{ display: "flex", gap: 32, marginBottom: 32 }}>
+            {leaderboardEntries.map((entry, idx) => (
+              <div key={idx} style={{ background: "#e6e6e6", width: 240, height: 240, display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "flex-start", borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
+                {entry.image_base64 && (
+                  <img
+                    src={entry.image_base64}
+                    alt={entry.username}
+                    style={{ width: "100%", height: 180, objectFit: "contain", borderTopLeftRadius: 8, borderTopRightRadius: 8 }}
+                  />
+                )}
+                <div style={{ display: "flex", width: "100%", justifyContent: "space-between", padding: "0 16px 16px 16px" }}>
+                  <span style={{ color: "#0057FF", fontWeight: 700, fontSize: 24 }}>{entry.username}</span>
+                  <span style={{ color: "#0057FF", fontWeight: 700, fontSize: 24 }}>{entry.score}</span>
+                </div>
+              </div>
+            ))}
+            {/* Fill empty squares if less than 3 */}
+            {Array.from({ length: 3 - leaderboardEntries.length }).map((_, idx) => (
+              <div key={"empty-" + idx} style={{ background: "#e6e6e6", width: 240, height: 240, borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }} />
+            ))}
+          </div>
+          <button
+            style={{
+              position: "absolute",
+              right: 48,
+              bottom: 32,
+              color: "#0057FF",
+              fontWeight: 700,
+              fontSize: 24,
+              background: "transparent",
+              border: "none",
+              textDecoration: "underline",
+              cursor: "pointer",
+            }}
+            onClick={() => window.location.reload()}
+          >
+            play again
+          </button>
+        </div>
+      )}
     </div>
   );
 }
