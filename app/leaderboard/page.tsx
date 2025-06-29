@@ -2,7 +2,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-export default function GalleryPage() {
+export default function LeaderboardPage() {
   const [rows, setRows] = useState<{ image_base64: string }[]>([]);
 
   useEffect(() => {
@@ -72,7 +72,7 @@ export default function GalleryPage() {
         zIndex: 2,
       }}>
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => window.location.href = '/'}
           style={{
             fontFamily: 'Helvetica Now Display Bold',
             fontSize: 20,

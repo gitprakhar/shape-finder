@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import DrawingCanvas, { DrawingCanvasHandle } from "./DrawingCanvas";
 import LandingPage from "./LandingPage";
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const [showLandingPage, setShowLandingPage] = useState(true);
@@ -16,6 +17,7 @@ export default function Home() {
   const [randomScore, setRandomScore] = useState<number | null>(null);
   const [defaultImage, setDefaultImage] = useState<string | null>(null);
   const [moves, setMoves] = useState(0);
+  const router = useRouter();
 
   const handleStartDrawing = () => {
     setShowLandingPage(false);
@@ -72,13 +74,7 @@ export default function Home() {
       setNameForImage("what is this?");
       setUsername("username");
       clearCanvas();
-      // Show leaderboard overlay
-      setShowLeaderboard(true);
-      setRandomScore(83); // random for now
-      // Fetch last 3 entries
-      const res = await fetch("/api/entries/last3");
-      const data = await res.json();
-      setLeaderboardEntries(data.entries || []);
+      router.push('/leaderboard');
     } catch {
       // Optionally handle error
     } finally {
@@ -102,137 +98,68 @@ export default function Home() {
           }}
         >
           {/* Number of moves at the top right */}
-          {!showLeaderboard && (
-            <div
-              style={{
-                position: "absolute",
-                top: 24,
-                right: 48,
-                color: "#000",
-                fontWeight: 700,
-                fontSize: 32,
-                fontFamily: "'UglyDave', Helvetica, Arial, sans-serif",
-                zIndex: 10,
-                background: "transparent",
-              }}
-            >
-              {moves} moves
-            </div>
-          )}
+          <div
+            style={{
+              position: "absolute",
+              top: 24,
+              right: 48,
+              color: "#000",
+              fontWeight: 700,
+              fontSize: 32,
+              fontFamily: "'UglyDave', Helvetica, Arial, sans-serif",
+              zIndex: 10,
+              background: "transparent",
+            }}
+          >
+            {moves} moves
+          </div>
           {/* Canvas fills the page */}
-          {!showLeaderboard && (
-            <DrawingCanvas
-              ref={canvasRef}
-              width={dimensions.width}
-              height={dimensions.height}
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100vw",
-                height: "100vh",
-                zIndex: 1,
-                background: "#E599FE",
-              }}
-              onMove={setMoves}
-              defaultImage={defaultImage}
-            />
-          )}
+          <DrawingCanvas
+            ref={canvasRef}
+            width={dimensions.width}
+            height={dimensions.height}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              height: "100vh",
+              zIndex: 1,
+              background: "#E599FE",
+            }}
+            onMove={setMoves}
+            defaultImage={defaultImage}
+          />
           {/* Centered submit button at the bottom */}
-          {!showLeaderboard && (
-            <div
+          <div
+            style={{
+              position: "absolute",
+              bottom: 48,
+              left: 0,
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 2,
+            }}
+          >
+            <button
+              onClick={handleSubmit}
+              disabled={submitting}
               style={{
-                position: "absolute",
-                bottom: 48,
-                left: 0,
-                width: "100%",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                zIndex: 2,
+                fontFamily: 'Helvetica Now Display Bold',
+                fontSize: 20,
+                color: "#000000",
+                background: "transparent",
+                border: "none",
+                textDecoration: "underline",
+                cursor: submitting ? "not-allowed" : "pointer",
+                fontWeight: 700,
               }}
             >
-              <button
-                onClick={handleSubmit}
-                disabled={submitting}
-                style={{
-                  fontFamily: 'Helvetica Now Display Bold',
-                  fontSize: 20,
-                  color: "#000000",
-                  background: "transparent",
-                  border: "none",
-                  textDecoration: "underline",
-                  cursor: submitting ? "not-allowed" : "pointer",
-                  fontWeight: 700,
-                }}
-              >
-                {submitting ? "submitting..." : "submit"}
-              </button>
-            </div>
-          )}
-          {/* Leaderboard overlay */}
-          {showLeaderboard && (
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100vw",
-                height: "100vh",
-                background: "#E6E6E6",
-                zIndex: 20,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                padding: 48,
-              }}
-            >
-              <div style={{ color: "#0057FF", fontWeight: 700, fontSize: 36, marginBottom: 32 }}>
-                Your score is {randomScore}/100
-              </div>
-              <div style={{ color: "#0057FF", fontWeight: 700, fontSize: 32, marginBottom: 24 }}>
-                leaderboard
-              </div>
-              <div style={{ display: "flex", gap: 32, marginBottom: 32 }}>
-                {leaderboardEntries.map((entry, idx) => (
-                  <div key={idx} style={{ background: "#e6e6e6", width: 320, height: 320, display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "flex-start", borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
-                    {entry.image_base64 && (
-                      <img
-                        src={entry.image_base64}
-                        alt={entry.username}
-                        style={{ width: "100%", height: 240, objectFit: "contain", borderTopLeftRadius: 8, borderTopRightRadius: 8 }}
-                      />
-                    )}
-                    <div style={{ display: "flex", width: "100%", justifyContent: "space-between", padding: "0 16px 16px 16px" }}>
-                      <span style={{ color: "#0057FF", fontWeight: 700, fontSize: 24 }}>{entry.username}</span>
-                      <span style={{ color: "#0057FF", fontWeight: 700, fontSize: 24 }}>{entry.score}</span>
-                    </div>
-                  </div>
-                ))}
-                {/* Fill empty squares if less than 3 */}
-                {Array.from({ length: 3 - leaderboardEntries.length }).map((_, idx) => (
-                  <div key={"empty-" + idx} style={{ background: "#e6e6e6", width: 320, height: 320, borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }} />
-                ))}
-              </div>
-              <button
-                style={{
-                  position: "absolute",
-                  right: 48,
-                  bottom: 32,
-                  color: "#0057FF",
-                  fontWeight: 700,
-                  fontSize: 24,
-                  background: "transparent",
-                  border: "none",
-                  textDecoration: "underline",
-                  cursor: "pointer",
-                }}
-                onClick={() => window.location.reload()}
-              >
-                play again
-              </button>
-            </div>
-          )}
+              {submitting ? "submitting..." : "submit"}
+            </button>
+          </div>
         </div>
       )}
     </>
