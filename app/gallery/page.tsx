@@ -1,29 +1,46 @@
 import { sql } from '@vercel/postgres';
 import React from 'react';
 
-export default async function GalleryPage() {
-  const { rows } = await sql`SELECT username, image_base64, name_for_image, number_of_moves, todays_date FROM entries`;
-  console.log(rows);
+function getRandomInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function isOverlapping(a: {top: number, left: number}, b: {top: number, left: number}, size: number) {
   return (
-    <div className="flex flex-col items-center p-8">
-      <h1 className="text-2xl font-bold mb-6">Gallery</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl">
-        {rows.map((entry, idx) => (
-          <div key={idx} className="flex flex-col items-center border rounded p-4 bg-white shadow">
-            {entry.image_base64 && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={entry.image_base64}
-                alt={entry.name_for_image || 'Drawing'}
-                style={{ width: 300, height: 150, objectFit: 'contain', background: '#f9f9f9', border: '1px solid #eee' }}
-              />
-            )}
-            <div className="mt-2 text-center text-gray-700 font-semibold">{entry.username}</div>
-            <div className="mt-1 text-center text-gray-700">{entry.name_for_image}</div>
-            <div className="mt-1 text-center text-gray-500 text-xs">Moves: {entry.number_of_moves} | Date: {typeof entry.todays_date === 'string' ? entry.todays_date : (entry.todays_date instanceof Date ? entry.todays_date.toISOString().split('T')[0] : String(entry.todays_date))}</div>
-          </div>
-        ))}
-      </div>
+    Math.abs(a.left - b.left) < size &&
+    Math.abs(a.top - b.top) < size
+  );
+}
+
+export default async function GalleryPage() {
+  const { rows } = await sql`SELECT image_base64 FROM entries`;
+  const containerWidth = 2200;
+  const containerHeight = 1600;
+  const imageSize = 480;
+  const placed: {top: number, left: number}[] = [];
+  const maxAttempts = 100;
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: '#E599FE',
+      display: 'grid',
+      gridTemplateColumns: 'repeat(3, 1fr)',
+      justifyItems: 'center',
+      alignItems: 'flex-start',
+      padding: 32,
+      gap: 32,
+    }}>
+      {rows.map((entry, idx) => (
+        entry.image_base64 && (
+          <img
+            key={idx}
+            src={entry.image_base64}
+            alt="Drawing"
+            style={{ width: 480, height: 480, objectFit: 'contain' }}
+          />
+        )
+      ))}
     </div>
   );
 } 

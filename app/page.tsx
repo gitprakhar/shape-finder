@@ -19,6 +19,7 @@ export default function Home() {
   const [randomScore, setRandomScore] = useState<number | null>(null);
   const [defaultImage, setDefaultImage] = useState<string | null>(null);
   const [rotation, setRotation] = useState(0);
+  const [moves, setMoves] = useState(0);
 
   const handleStartDrawing = () => {
     setShowLandingPage(false);
@@ -55,35 +56,6 @@ export default function Home() {
         if (data && data.image_base64) setDefaultImage(data.image_base64);
       });
   }, []);
-
-  useEffect(() => {
-    // Draw the default image on the canvas when loaded
-    if (defaultImage && canvasRef.current) {
-      const canvas = (canvasRef.current as DrawingCanvasHandle).canvasRef?.current;
-      if (canvas) {
-        const ctx = canvas.getContext("2d");
-        const img = new window.Image();
-        img.onload = () => {
-          ctx?.clearRect(0, 0, canvas.width, canvas.height);
-          ctx?.save();
-          ctx?.translate(canvas.width / 2, canvas.height / 2);
-          ctx?.rotate((rotation * Math.PI) / 180);
-          // Draw image at 75% of canvas size (25% smaller)
-          const drawWidth = canvas.width * 0.75;
-          const drawHeight = canvas.height * 0.75;
-          ctx?.drawImage(
-            img,
-            -drawWidth / 2,
-            -drawHeight / 2,
-            drawWidth,
-            drawHeight
-          );
-          ctx?.restore();
-        };
-        img.src = defaultImage;
-      }
-    }
-  }, [defaultImage, dimensions, canvasRef, rotation]);
 
   const getImageBase64 = () => {
     return canvasRef.current?.getImageBase64() || null;
@@ -140,30 +112,27 @@ export default function Home() {
             position: "relative",
             width: "100vw",
             height: "100vh",
-            background: "#E6E6E6",
+            background: "#E599FE",
             fontFamily: 'Helvetica Now Display Bold',
             overflow: "hidden",
           }}
         >
-          {/* Prompt at the very top */}
+          {/* Number of moves at the top right */}
           {!showLeaderboard && (
             <div
               style={{
                 position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                textAlign: "left",
-                color: "#0057FF",
+                top: 24,
+                right: 48,
+                color: "#000",
                 fontWeight: 700,
-                fontSize: 36,
-                fontFamily: 'Helvetica Now Display Bold',
+                fontSize: 32,
+                fontFamily: "'UglyDave', Helvetica, Arial, sans-serif",
                 zIndex: 10,
                 background: "transparent",
-                padding: "32px 0 0 48px",
               }}
             >
-              Make a shape from the existing shape. Use as few moves as you can. Be as creative as you want. Tell us what you made.
+              {moves} moves
             </div>
           )}
           {/* Canvas fills the page */}
@@ -179,131 +148,39 @@ export default function Home() {
                 width: "100vw",
                 height: "100vh",
                 zIndex: 1,
-                background: "#E6E6E6",
+                background: "#E599FE",
               }}
+              onMove={setMoves}
+              defaultImage={defaultImage}
+              rotation={rotation}
             />
           )}
-          {/* Form fields at the bottom */}
+          {/* Centered submit button at the bottom */}
           {!showLeaderboard && (
             <div
               style={{
                 position: "absolute",
-                bottom: 32,
+                bottom: 48,
                 left: 0,
                 width: "100%",
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-end",
-                padding: "0 48px",
+                justifyContent: "center",
+                alignItems: "center",
                 zIndex: 2,
               }}
             >
-              {/* Username and what is this next to each other */}
-              <div style={{ display: "flex", alignItems: "flex-end", gap: 32 }}>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={e => setUsername(e.target.value)}
-                  onFocus={() => { if (username === "username") setUsername(""); }}
-                  style={{
-                    fontFamily: 'Helvetica Now Display Bold',
-                    fontSize: 24,
-                    color: "#0057FF",
-                    background: "transparent",
-                    border: "none",
-                    borderBottom: "2px solid #0057FF",
-                    outline: "none",
-                    minWidth: "100px",
-                    width: `${Math.max(username.length, 8)}ch`,
-                    marginRight: 0,
-                    textAlign: "left",
-                    transition: "width 0.2s",
-                  }}
-                />
-                <input
-                  type="text"
-                  value={nameForImage}
-                  onChange={e => setNameForImage(e.target.value)}
-                  onFocus={() => { if (nameForImage === "what is this?") setNameForImage(""); }}
-                  style={{
-                    fontFamily: 'Helvetica Now Display Bold',
-                    fontSize: 24,
-                    color: "#0057FF",
-                    background: "transparent",
-                    border: "none",
-                    borderBottom: "2px solid #0057FF",
-                    outline: "none",
-                    minWidth: "60px",
-                    maxWidth: "250px",
-                    width: inputWidth,
-                    textAlign: "left",
-                    transition: "width 0.2s",
-                  }}
-                />
-                {/* Hidden span for measuring input width */}
-                <span
-                  ref={spanRef}
-                  style={{
-                    position: "absolute",
-                    visibility: "hidden",
-                    height: 0,
-                    overflow: "hidden",
-                    whiteSpace: "pre",
-                    fontFamily: 'Helvetica Now Display Bold',
-                    fontSize: 24,
-                    fontWeight: 700,
-                    letterSpacing: "normal",
-                  }}
-                >
-                  {nameForImage || " "}
-                </span>
-                {/* Fixed-width container for rotate slider */}
-                <div style={{ display: 'flex', alignItems: 'center', marginLeft: 24, minWidth: 200 }}>
-                  <label style={{ color: '#0057FF', fontWeight: 700, fontSize: 18, marginRight: 8 }}>
-                    Rotate:
-                  </label>
-                  <input
-                    type="range"
-                    min={-180}
-                    max={180}
-                    value={rotation}
-                    onChange={e => setRotation(Number(e.target.value))}
-                    style={{ width: 120 }}
-                  />
-                </div>
-              </div>
-              {/* Submit button and its measuring span remain on the right */}
-              <span
-                ref={submitSpanRef}
-                style={{
-                  position: "absolute",
-                  visibility: "hidden",
-                  height: 0,
-                  overflow: "hidden",
-                  whiteSpace: "pre",
-                  fontFamily: 'Helvetica Now Display Bold',
-                  fontSize: 24,
-                  fontWeight: 700,
-                  letterSpacing: "normal",
-                }}
-              >
-                {submitting ? "submitting..." : "submit"}
-              </span>
               <button
                 onClick={handleSubmit}
-                disabled={submitting || !username.trim() || !nameForImage.trim()}
+                disabled={submitting}
                 style={{
                   fontFamily: 'Helvetica Now Display Bold',
-                  fontSize: 24,
-                  color: "#0057FF",
+                  fontSize: 20,
+                  color: "#000000",
                   background: "transparent",
                   border: "none",
-                  borderBottom: "2px solid #0057FF",
+                  textDecoration: "underline",
                   cursor: submitting ? "not-allowed" : "pointer",
-                  width: submitWidth,
-                  textAlign: "right",
-                  opacity: submitting ? 0.6 : 1,
-                  transition: "width 0.2s",
+                  fontWeight: 700,
                 }}
               >
                 {submitting ? "submitting..." : "submit"}

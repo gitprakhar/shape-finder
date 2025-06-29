@@ -24,6 +24,12 @@
   font-style: normal;
   font-display: swap;
 }
+@font-face {
+  font-family: 'UglyDave';
+  src: url('/fonts/UglyDaveRegular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
 
 body {
   background: var(--background);
