@@ -27,7 +27,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>(
       if (onMove) onMove(moveCount);
     }, [moveCount, onMove]);
 
-    // Draw default image when it changes, or when canvas size/rotation changes, or when cleared
+    const isCanvasCleared = moveCount === 0;
     useEffect(() => {
       if (defaultImage && canvasRef.current) {
         const canvas = canvasRef.current;
@@ -52,7 +52,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>(
         };
         img.src = defaultImage;
       }
-    }, [defaultImage, width, height, rotation, moveCount === 0]);
+    }, [defaultImage, width, height, rotation, isCanvasCleared]);
 
     useImperativeHandle(ref, () => ({
       getImageBase64: () => {
@@ -79,9 +79,9 @@ const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>(
         }
         if (!found) return canvas.toDataURL("image/png"); // nothing drawn
         // Make bounding box square
-        let boxWidth = maxX - minX + 1;
-        let boxHeight = maxY - minY + 1;
-        let size = Math.max(boxWidth, boxHeight);
+        const boxWidth = maxX - minX + 1;
+        const boxHeight = maxY - minY + 1;
+        const size = Math.max(boxWidth, boxHeight);
         // Center the crop if not square
         let cropX = minX - Math.floor((size - boxWidth) / 2);
         let cropY = minY - Math.floor((size - boxHeight) / 2);
