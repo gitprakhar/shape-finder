@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import React, { useRef, useState, useEffect } from "react";
 import DrawingCanvas, { DrawingCanvasHandle } from "./DrawingCanvas";
@@ -10,7 +11,6 @@ export default function Home() {
   const [username, setUsername] = useState("username");
   const [nameForImage, setNameForImage] = useState("what is this?");
   const [submitting, setSubmitting] = useState(false);
-  const spanRef = useRef<HTMLSpanElement>(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [leaderboardEntries, setLeaderboardEntries] = useState<{ username: string; score: number; image_base64?: string }[]>([]);
   const [randomScore, setRandomScore] = useState<number | null>(null);
