@@ -1,17 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-function getRandomInt(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function isOverlapping(a: {top: number, left: number}, b: {top: number, left: number}, size: number) {
-  return (
-    Math.abs(a.left - b.left) < size &&
-    Math.abs(a.top - b.top) < size
-  );
-}
-
 export default function GalleryPage() {
   const [rows, setRows] = useState<{ image_base64: string }[]>([]);
 
@@ -20,12 +9,6 @@ export default function GalleryPage() {
       .then(res => res.json())
       .then(data => setRows(data.rows || []));
   }, []);
-
-  const containerWidth = 2200;
-  const containerHeight = 1600;
-  const imageSize = 480;
-  const placed: {top: number, left: number}[] = [];
-  const maxAttempts = 100;
 
   return (
     <div style={{
