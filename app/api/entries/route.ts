@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
-    const { rows } = await sql`SELECT image_base64 FROM entries ORDER BY id DESC`;
+    const { rows } = await sql`SELECT image_base64 FROM entries WHERE number_of_moves IS NOT NULL ORDER BY number_of_moves ASC LIMIT 4`;
     return NextResponse.json({ rows });
   } catch (error) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
