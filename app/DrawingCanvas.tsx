@@ -58,7 +58,49 @@ const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>(
       getImageBase64: () => {
         const canvas = canvasRef.current;
         if (!canvas) return null;
-        return canvas.toDataURL("image/png");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return null;
+        const { width, height } = canvas;
+        const imageData = ctx.getImageData(0, 0, width, height);
+        const data = imageData.data;
+        let minX = width, minY = height, maxX = 0, maxY = 0;
+        let found = false;
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const idx = (y * width + x) * 4;
+            if (data[idx + 3] > 0) { // non-transparent pixel
+              found = true;
+              if (x < minX) minX = x;
+              if (x > maxX) maxX = x;
+              if (y < minY) minY = y;
+              if (y > maxY) maxY = y;
+            }
+          }
+        }
+        if (!found) return canvas.toDataURL("image/png"); // nothing drawn
+        // Make bounding box square
+        let boxWidth = maxX - minX + 1;
+        let boxHeight = maxY - minY + 1;
+        let size = Math.max(boxWidth, boxHeight);
+        // Center the crop if not square
+        let cropX = minX - Math.floor((size - boxWidth) / 2);
+        let cropY = minY - Math.floor((size - boxHeight) / 2);
+        // Clamp cropX/cropY to canvas
+        cropX = Math.max(0, cropX);
+        cropY = Math.max(0, cropY);
+        if (cropX + size > width) cropX = width - size;
+        if (cropY + size > height) cropY = height - size;
+        // Create a new square canvas
+        const cropCanvas = document.createElement("canvas");
+        cropCanvas.width = size;
+        cropCanvas.height = size;
+        const cropCtx = cropCanvas.getContext("2d");
+        if (!cropCtx) return null;
+        // Do not fill with white, keep transparent background
+        // cropCtx.fillStyle = "#fff";
+        // cropCtx.fillRect(0, 0, size, size);
+        cropCtx.drawImage(canvas, cropX, cropY, size, size, 0, 0, size, size);
+        return cropCanvas.toDataURL("image/png");
       },
       getNumberOfMoves: () => moveCount,
       clearCanvas: () => {
