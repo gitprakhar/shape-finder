@@ -11,14 +11,10 @@ export default function Home() {
   const [nameForImage, setNameForImage] = useState("what is this?");
   const [submitting, setSubmitting] = useState(false);
   const spanRef = useRef<HTMLSpanElement>(null);
-  const [inputWidth, setInputWidth] = useState<number>(0);
-  const submitSpanRef = useRef<HTMLSpanElement>(null);
-  const [submitWidth, setSubmitWidth] = useState<number>(0);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [leaderboardEntries, setLeaderboardEntries] = useState<{ username: string; score: number; image_base64?: string }[]>([]);
   const [randomScore, setRandomScore] = useState<number | null>(null);
   const [defaultImage, setDefaultImage] = useState<string | null>(null);
-  const [rotation, setRotation] = useState(0);
   const [moves, setMoves] = useState(0);
 
   const handleStartDrawing = () => {
@@ -35,18 +31,6 @@ export default function Home() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  useEffect(() => {
-    if (spanRef.current) {
-      setInputWidth(spanRef.current.offsetWidth + 8); // +8 for cursor padding
-    }
-  }, [nameForImage]);
-
-  useEffect(() => {
-    if (submitSpanRef.current) {
-      setSubmitWidth(submitSpanRef.current.offsetWidth + 8); // +8 for padding
-    }
-  }, [submitting]);
 
   useEffect(() => {
     // Fetch the default image (username: pm17, name_for_image: default)
@@ -152,7 +136,6 @@ export default function Home() {
               }}
               onMove={setMoves}
               defaultImage={defaultImage}
-              rotation={rotation}
             />
           )}
           {/* Centered submit button at the bottom */}

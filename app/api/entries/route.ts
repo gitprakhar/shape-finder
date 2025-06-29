@@ -18,11 +18,11 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const { rows } = await sql`SELECT image_base64 FROM entries ORDER BY id DESC`;
     return NextResponse.json({ rows });
   } catch (error) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
-} 
+}
