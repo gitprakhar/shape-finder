@@ -9,12 +9,8 @@ export default function Home() {
   const [showLandingPage, setShowLandingPage] = useState(true);
   const canvasRef = useRef<DrawingCanvasHandle>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const [username, setUsername] = useState("username");
-  const [nameForImage, setNameForImage] = useState("what is this?");
   const [submitting, setSubmitting] = useState(false);
   const [defaultImage, setDefaultImage] = useState<string | null>(null);
-  const [moves, setMoves] = useState(0);
-  const router = useRouter();
   const [showScoreSubmit, setShowScoreSubmit] = useState(false);
 
   const handleStartDrawing = () => {
@@ -47,17 +43,12 @@ export default function Home() {
   const getNumberOfMoves = () => {
     return canvasRef.current?.getNumberOfMoves() || 0;
   };
-  const clearCanvas = () => {
-    canvasRef.current?.clearCanvas();
-  };
 
   const todaysDate = new Date().toISOString().split("T")[0];
 
   const handleSubmit = async () => {
-    if (!username.trim() || !nameForImage.trim()) return;
     setSubmitting(true);
     try {
-      // Instead of submitting, show the score submit page
       setShowScoreSubmit(true);
     } finally {
       setSubmitting(false);
@@ -72,7 +63,7 @@ export default function Home() {
         <ScoreSubmitPage
           image_base64={getImageBase64() || ''}
           number_of_moves={getNumberOfMoves()}
-          name_for_image={nameForImage}
+          name_for_image={''}
           todays_date={todaysDate}
           score={84}
         />
@@ -101,7 +92,6 @@ export default function Home() {
               zIndex: 1,
               background: "#E599FE",
             }}
-            onMove={setMoves}
             defaultImage={defaultImage}
           />
           {/* Centered submit button at the bottom */}
