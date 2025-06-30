@@ -2,7 +2,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import DrawingCanvas, { DrawingCanvasHandle } from "./DrawingCanvas";
 import LandingPage from "./LandingPage";
-import { useRouter } from 'next/navigation';
 import ScoreSubmitPage from "./ScoreSubmitPage";
 
 export default function Home() {

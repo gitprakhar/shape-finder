@@ -38,7 +38,7 @@ export default function ScoreSubmitPage({ image_base64, number_of_moves, name_fo
       } else {
         router.push('/leaderboard');
       }
-    } catch (err) {
+    } catch {
       setError('Submission failed');
     } finally {
       setSubmitting(false);
