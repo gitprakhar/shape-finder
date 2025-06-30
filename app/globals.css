@@ -30,6 +30,13 @@
   font-weight: normal;
   font-style: normal;
 }
+@font-face {
+  font-family: 'Barlow_Condensed';
+  src: url('/fonts/Barlow_Condensed/BarlowCondensed-SemiBold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 body {
   background: var(--background);
@@ -39,4 +46,22 @@ body {
 
 b, strong, .font-bold {
   font-family: 'Helvetica Now Display Bold', Arial, Helvetica, sans-serif;
+}
+
+.pink-button {
+  background: #000;
+  color: #E599FE;
+  font-family: 'Barlow_Condensed', Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 32px;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin: 8px 0;
+}
+.pink-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

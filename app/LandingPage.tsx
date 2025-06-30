@@ -38,16 +38,8 @@ export default function LandingPage({ onStartDrawing }: LandingPageProps) {
       {/* Start Drawing button at the bottom */}
       <button
         onClick={onStartDrawing}
-        style={{
-          fontFamily: 'Helvetica Now Display Bold',
-          fontSize: 20,
-          color: "#000000",
-          background: "transparent",
-          border: "none",
-          textDecoration: "underline",
-          cursor: "pointer",
-          fontWeight: 700,
-        }}
+        className="pink-button"
+        style={{ fontFamily: 'Barlow_Condensed, Arial, Helvetica, sans-serif' }}
       >
         start drawing
       </button>

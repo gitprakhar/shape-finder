@@ -3,6 +3,7 @@ import React, { useRef, useState, useEffect } from "react";
 import DrawingCanvas, { DrawingCanvasHandle } from "./DrawingCanvas";
 import LandingPage from "./LandingPage";
 import { useRouter } from 'next/navigation';
+import ScoreSubmitPage from "./ScoreSubmitPage";
 
 export default function Home() {
   const [showLandingPage, setShowLandingPage] = useState(true);
@@ -14,6 +15,7 @@ export default function Home() {
   const [defaultImage, setDefaultImage] = useState<string | null>(null);
   const [moves, setMoves] = useState(0);
   const router = useRouter();
+  const [showScoreSubmit, setShowScoreSubmit] = useState(false);
 
   const handleStartDrawing = () => {
     setShowLandingPage(false);
@@ -55,24 +57,8 @@ export default function Home() {
     if (!username.trim() || !nameForImage.trim()) return;
     setSubmitting(true);
     try {
-      const image_base64 = getImageBase64();
-      await fetch("/api/entries", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username,
-          image_base64,
-          name_for_image: nameForImage,
-          number_of_moves: getNumberOfMoves(),
-          todays_date: todaysDate,
-        }),
-      });
-      setNameForImage("what is this?");
-      setUsername("username");
-      clearCanvas();
-      router.push('/leaderboard');
-    } catch {
-      // Optionally handle error
+      // Instead of submitting, show the score submit page
+      setShowScoreSubmit(true);
     } finally {
       setSubmitting(false);
     }
@@ -82,6 +68,14 @@ export default function Home() {
     <>
       {showLandingPage ? (
         <LandingPage onStartDrawing={handleStartDrawing} />
+      ) : showScoreSubmit ? (
+        <ScoreSubmitPage
+          image_base64={getImageBase64() || ''}
+          number_of_moves={getNumberOfMoves()}
+          name_for_image={nameForImage}
+          todays_date={todaysDate}
+          score={84}
+        />
       ) : (
         <div
           style={{
@@ -93,22 +87,6 @@ export default function Home() {
             overflow: "hidden",
           }}
         >
-          {/* Number of moves at the top right */}
-          <div
-            style={{
-              position: "absolute",
-              top: 24,
-              right: 48,
-              color: "#000",
-              fontWeight: 700,
-              fontSize: 32,
-              fontFamily: "'UglyDave', Helvetica, Arial, sans-serif",
-              zIndex: 10,
-              background: "transparent",
-            }}
-          >
-            {moves} moves
-          </div>
           {/* Canvas fills the page */}
           <DrawingCanvas
             ref={canvasRef}
@@ -142,16 +120,8 @@ export default function Home() {
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              style={{
-                fontFamily: 'Helvetica Now Display Bold',
-                fontSize: 20,
-                color: "#000000",
-                background: "transparent",
-                border: "none",
-                textDecoration: "underline",
-                cursor: submitting ? "not-allowed" : "pointer",
-                fontWeight: 700,
-              }}
+              className="pink-button"
+              style={{ fontFamily: 'Barlow_Condensed, Arial, Helvetica, sans-serif' }}
             >
               {submitting ? "submitting..." : "submit"}
             </button>

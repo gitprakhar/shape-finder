@@ -27,6 +27,20 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <div style={{
+          position: 'fixed',
+          top: 24,
+          left: 32,
+          color: '#000',
+          fontFamily: 'Barlow_Condensed, Arial, Helvetica, sans-serif',
+          fontSize: 16,
+          fontWeight: 700,
+          zIndex: 100,
+          pointerEvents: 'none',
+          userSelect: 'none',
+        }}>
+          www.shape-finder.com
+        </div>
         {children}
       </body>
     </html>

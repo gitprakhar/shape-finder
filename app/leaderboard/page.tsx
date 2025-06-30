@@ -3,12 +3,12 @@
 import React, { useEffect, useState } from "react";
 
 export default function LeaderboardPage() {
-  const [rows, setRows] = useState<{ image_base64: string }[]>([]);
+  const [entries, setEntries] = useState<{ image_base64: string; username: string; score: number }[]>([]);
 
   useEffect(() => {
-    fetch("/api/entries")
+    fetch("/api/entries/last3")
       .then(res => res.json())
-      .then(data => setRows(data.rows || []));
+      .then(data => setEntries(data.entries || []));
   }, []);
 
   return (
@@ -21,22 +21,21 @@ export default function LeaderboardPage() {
       alignItems: 'center',
       position: 'relative',
     }}>
-      {/* Leaderboard heading */}
+      {/* Leaderboard heading above images grid */}
       <div style={{
-        position: 'absolute',
-        top: 48,
-        left: 0,
         width: '100%',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        zIndex: 2,
+        marginBottom: 16,
       }}>
         <span style={{
-          fontFamily: 'UglyDave, Helvetica, Arial, sans-serif',
-          fontSize: 64,
+          fontFamily: 'Barlow_Condensed, Arial, Helvetica, sans-serif',
+          fontWeight: 700,
+          fontSize: 32,
           color: '#000',
           letterSpacing: 2,
+          textDecoration: 'underline',
         }}>
           leaderboard
         </span>
@@ -44,19 +43,29 @@ export default function LeaderboardPage() {
       {/* Images grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(3, 1fr)',
         justifyItems: 'center',
         gap: 64,
         padding: 100,
       }}>
-        {rows.slice(-4).map((entry, idx) => (
+        {entries.map((entry, idx) => (
           entry.image_base64 && (
-            <img
-              key={idx}
-              src={entry.image_base64}
-              alt="Drawing"
-              style={{ width: 480, height: 480, objectFit: 'contain' }}
-            />
+            <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <img
+                src={entry.image_base64}
+                alt="Drawing"
+                style={{ width: 220, height: 220, objectFit: 'contain' }}
+              />
+              <div style={{
+                fontFamily: "'UglyDave', Helvetica, Arial, sans-serif",
+                fontSize: 20,
+                color: '#000',
+                marginTop: 12,
+                textAlign: 'center',
+              }}>
+                {entry.username} | {entry.score}
+              </div>
+            </div>
           )
         ))}
       </div>
@@ -73,17 +82,8 @@ export default function LeaderboardPage() {
       }}>
         <button
           onClick={() => window.location.href = '/'}
-          style={{
-            fontFamily: 'Helvetica Now Display Bold',
-            fontSize: 20,
-            color: '#000000',
-            background: 'transparent',
-            border: 'none',
-            textDecoration: 'underline',
-            cursor: 'pointer',
-            fontWeight: 700,
-            padding: '8px 24px',
-          }}
+          className="pink-button"
+          style={{ fontFamily: 'Barlow_Condensed, Arial, Helvetica, sans-serif' }}
         >
           play-again
         </button>
