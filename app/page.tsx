@@ -62,7 +62,7 @@ export default function Home() {
         <ScoreSubmitPage
           image_base64={getImageBase64() || ''}
           number_of_moves={getNumberOfMoves()}
-          name_for_image={''}
+          name_for_image={'no_name'}
           todays_date={todaysDate}
           score={84}
         />

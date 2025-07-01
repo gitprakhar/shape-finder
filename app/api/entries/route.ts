@@ -4,7 +4,7 @@ import { sql } from '@vercel/postgres';
 export async function POST(req: NextRequest) {
   try {
     const { username, image_base64, name_for_image, number_of_moves, todays_date, score: providedScore } = await req.json();
-    if (!username || !image_base64 || !name_for_image || !number_of_moves || !todays_date) {
+    if (!username || !image_base64 || !name_for_image || number_of_moves === undefined || !todays_date) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
     const score = providedScore !== undefined ? providedScore : Math.floor(Math.random() * 100) + 1;
