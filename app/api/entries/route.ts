@@ -26,25 +26,3 @@ export async function GET() {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }
-
-export async function GET_random_pair() {
-  try {
-    const { rows } = await sql`SELECT id, image_base64 FROM entries ORDER BY RANDOM() LIMIT 2`;
-    return NextResponse.json({ rows });
-  } catch (error) {
-    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
-  }
-}
-
-export async function POST_vote(req: NextRequest) {
-  try {
-    const { id } = await req.json();
-    if (!id) {
-      return NextResponse.json({ error: 'Missing entry id' }, { status: 400 });
-    }
-    await sql`UPDATE entries SET score = score + 1 WHERE id = ${id}`;
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
-  }
-}
