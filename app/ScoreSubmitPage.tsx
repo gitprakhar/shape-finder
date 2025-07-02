@@ -36,7 +36,7 @@ export default function ScoreSubmitPage({ image_base64, number_of_moves, name_fo
         const data = await res.json();
         setError(data.error || 'Submission failed');
       } else {
-        router.push('/leaderboard');
+        router.push('/vote');
       }
     } catch {
       setError('Submission failed');
